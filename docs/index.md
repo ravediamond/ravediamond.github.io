@@ -9,7 +9,7 @@ Everything below was run on one SO-101 (6-DoF, STS3215 servos), a wrist and a to
 | **Code and reports** | `road-to-robotics` (the working repo, reports linked per row in the [experiment log](experiments.md)) |
 | **Datasets (public, Hugging Face Hub)** | [`ravediamond/so101_bowls_all_trimmed`](https://huggingface.co/datasets/ravediamond/so101_bowls_all_trimmed): 182 teleop episodes, 61k frames · [`ravediamond/so101-bowls-policy-rollouts`](https://huggingface.co/datasets/ravediamond/so101-bowls-policy-rollouts): 69 policy rollouts, 46 success / 23 failure, labelled |
 | **Upstream** | LeRobot reviewer; merged: Jetson Orin Docker image (`#4599`), VLA-JEPA future-frame leak fix (`#4381`) and review of its refactor (`#4425`), draccus co-author (`#4260`, `#4265`); vla.cpp Orin NX benchmarks and prefix-overwrite port; leLab dataset-editing PRs; `lerobot-policy-turbovla-so101` on PyPI |
-| **Author** | Ravindu Somawansa, Paris. Staff AI engineer (agentic systems, evaluation); 2nd place, Hugging Face × NVIDIA GTC hackathon. [GitHub](https://github.com/ravediamond) · [Hub](https://huggingface.co/ravediamond) |
+| **Author** | Ravindu Somawansa, Paris. Staff AI engineer (agentic systems, evaluation); 2nd place, Hugging Face × NVIDIA GTC hackathon. [LinkedIn](https://www.linkedin.com/in/ravindusomawansa/) · [GitHub](https://github.com/ravediamond) · [Hub](https://huggingface.co/ravediamond) |
 
 ---
 
