@@ -1,0 +1,48 @@
+site_name: Road to Robotics
+site_description: JEPA world models, small VLAs and rigorous evaluation on a $300 arm. Research notes by Ravindu Somawansa.
+site_url: https://ravediamond.github.io/
+repo_url: https://github.com/ravediamond/ravediamond.github.io
+copyright: Ravindu Somawansa, 2026. Numbers link to their reports; nothing is rounded up.
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      accent: deep orange
+      toggle:
+        icon: material/weather-night
+        name: Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: deep orange
+      toggle:
+        icon: material/weather-sunny
+        name: Light mode
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.tabs.link
+    - toc.integrate
+
+nav:
+  - Thesis and results: index.md
+  - Experiment log: experiments.md
+  - Architecture: architecture.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
