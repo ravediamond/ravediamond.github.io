@@ -32,8 +32,19 @@ theme:
 
 nav:
   - Thesis and results: index.md
+  - Posts:
+      - blog/index.md
   - Experiment log: experiments.md
   - Architecture: architecture.md
+
+plugins:
+  - search
+  - blog:
+      blog_dir: blog
+      post_date_format: long
+      post_url_format: "{date}/{slug}"
+      archive: false
+      categories: false
 
 markdown_extensions:
   - admonition
