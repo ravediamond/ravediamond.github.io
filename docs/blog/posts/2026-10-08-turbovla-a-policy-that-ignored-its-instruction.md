@@ -8,6 +8,10 @@ slug: turbovla-a-policy-that-ignored-its-instruction
 
 Ten days of work, several variants, a published PyPI package, and a closed project. TurboVLA fine-tuned on the two-task bowls data learned to perform whichever task it had seen last, whatever the instruction said. The failure taught me two things about data that the later datasets were built around.
 
+
+!!! warning "Corrected 2026-10-23"
+    The conclusion below about the *model* was wrong. My port differed from the paper in four places, and the paper's own trainer, run on the same data with the paper's initialisation, also ignores the instruction (task swap 0.020° vs 0.105 for the same model on LIBERO-Goal). The data finding (fact 7) is the whole story. Full account: [Paper vs hardware 12: TurboVLA](2026-10-23-paper-vs-hardware-turbovla.md).
+
 <!-- more -->
 
 ## What happened

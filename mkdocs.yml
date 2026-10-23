@@ -35,6 +35,7 @@ nav:
   - Posts:
       - blog/index.md
   - Experiment log: experiments.md
+  - Paper vs hardware: papers.md
   - Architecture: architecture.md
 
 plugins:
