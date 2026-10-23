@@ -27,13 +27,17 @@ Metric **bTWA**: half earliness-weighted recall (a failure detected at t_i of T_
 | Representation | failure-supervised Perceiver over DINOv2 | W1's prediction-trained latent |
 | Target | ramp, no onsets | Gemini onsets + step feature |
 | Action control | shuffled chunk: 0.683 → 0.618 | not run |
-| Best result | bTWA 0.70–0.78 | 6/8 at 7/42 (bar 5/8 at 2/42) |
+| Best result, v1 (time feature, Gemini onsets) | bTWA 0.70–0.78 | 6/8 at 7/42, AUROC 0.93 |
+| v2 (ramp target, no time feature, common-horizon cut) | — | logistic 3/8 at 5/42, AUROC 0.789, bTWA 0.55; MLP 6/8 at 13/42 |
+| True vs shuffled chunk | Table 3b: 0.683 vs 0.618 | 0.789 vs 0.708 (+0.08) |
 | Latency | 9.7 ms detector | 17.6 ms W1 + 18 ms head |
 
 ## What the gap means
 
 Table 3a says the encoder is not where my gap is: a random projection of DINOv2 is within 0.03 of their learned one, so W1's latent is probably fine. The two things their design has and mine lacks are exactly my two confounds. The **ramp target** removes the onset labels from the verdict — the 25 hand labels I owe become a validation set instead of a prerequisite. The **shuffled-chunk control** decides whether "action-conditioned" belongs in the name: train once, evaluate with other episodes' chunks; if the number does not drop, the head is a state monitor. Both are offline and free and are in the amendments; bTWA goes beside my bar so the comparison is on their metric too.
 
-**Verdict:** closest to the bar of anything tried; not proven; two confounds with published fixes.
+**REAP v2 (2026-10-23, evening).** The paper's own fixes applied: ramp target (no onset labels), no time feature, every episode cut to the task's common horizon (374 frames), shuffled-chunk and zero-action controls, bTWA reported, VLA-Corrector's parameter-free GRU as the floor. Protocol committed before the run. Result on the primary 50, medians over 5 seeds: logistic head **3/8 at 5/42, AUROC 0.789** (shuffled 0.708, zero 0.693); MLP 6/8 at 13/42; GRU floor 2/8 at 3/42, 0.589. So v1's 0.93 was the time feature and the episode length. The one thing that survives is the action-conditioning test: both W1 heads gain 0.07–0.08 over shuffled chunks, above the +0.05 line, so the head does read the commanded action — it just does not read enough.
 
-**What would change it:** the ramp retrain and the shuffled-chunk control, then the 25 onsets as a check.
+**Verdict:** fail. No monitor meets the bar once the confounds are removed; the W1 risk head is action-conditioned but weak; the floor baseline is a state monitor.
+
+**What would change it:** a world model trained on the deployed policy's own rollouts (ContactGuard's recipe), not teleop only; then the same v2 protocol.

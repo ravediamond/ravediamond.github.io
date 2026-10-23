@@ -15,13 +15,13 @@ Verdict words are the register's: **reproduces** (their claim holds here within 
 | 5 | [D-JEPA](blog/posts/2026-10-23-paper-vs-hardware-d-jepa.md) | 2609.24749 | W1-R | not tested (proxy labels); executed-candidate version scheduled for the G7 session |
 | 6 | [ContactGuard](blog/posts/2026-10-23-paper-vs-hardware-contactguard.md) | 2608.13438 | W1-C1 | does not reproduce (imagined 0.70 vs current 0.82); corruption control pending |
 | 7 | [FAIL-Detect and SAFE](blog/posts/2026-10-23-paper-vs-hardware-fail-detect-and-safe.md) | 2503.08558, 2506.09937 | W1-A/C | FAIL-Detect's band fails as its authors warn; SAFE probe not yet cleanly tested |
-| 8 | [ReAP](blog/posts/2026-10-23-paper-vs-hardware-reap.md) | 2610.16309 | REAP head | not proven (6/8 at 7/42; two confounds, ramp-target re-score scheduled) |
+| 8 | [ReAP](blog/posts/2026-10-23-paper-vs-hardware-reap.md) | 2610.16309 | REAP head | fail after v2 (ramp target, no time feature: 3/8 at 5/42, AUROC 0.79); head is action-conditioned (+0.08 over shuffled) but weak |
 | 9 | [VLA-Corrector](blog/posts/2026-10-23-paper-vs-hardware-vla-corrector.md) | 2609.06508 | borrowed signal | fail; the paper's GRU verifier is the next floor baseline |
 | 10 | [Robometer](blog/posts/2026-10-23-paper-vs-hardware-robometer.md) | 2603.02115 | G9b | fails as a zero-shot judge; episode length wins 4/4 held-out tasks |
 | 11 | [SmolVLA](blog/posts/2026-10-23-paper-vs-hardware-smolvla.md) | 2506.01844 | multitask gates, vla.cpp parity | reproduces; the ablation tables are the manual |
 | 12 | [TurboVLA](blog/posts/2026-10-23-paper-vs-hardware-turbovla.md) | port review, path A | fact 7 (data) is the full story; port claim withdrawn |
 | 13 | [VLA-JEPA](blog/posts/2026-10-23-paper-vs-hardware-vla-jepa.md) | 2602.10098 | $10 train, Orin run, H0 | runs as advertised; robustness claim untested; reranking no-go |
-| 14 | [REKI](blog/posts/2026-10-23-paper-vs-hardware-reki.md) | 2610.22178 | G14 | oscillation mechanism reproduces (24 % vs their 18.6 %); fix untested |
+| 14 | [REKI](blog/posts/2026-10-23-paper-vs-hardware-reki.md) | 2610.22178 | G14 | oscillation mechanism reproduces (20.3 % vs their 18.6 %); fix untested |
 | 15 | [Real-Time Chunking](blog/posts/2026-10-23-paper-vs-hardware-real-time-chunking.md) | 2506.07339 | G13 prefix overwrite | hard-mask point reproduces in spirit; soft-mask comparison scheduled |
 
 ## Scheduled (post follows the run)

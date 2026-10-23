@@ -20,13 +20,13 @@ Evaluation: LIBERO-Plus 90.4; RoboTwin Clean2Rand 65.8; RoboCasa365 38.4; baseli
 
 **G12 (2026-10-18), voided the same day.** The bar was memory ≤ 8 GB and chunk ≤ 250 ms on the Orin; the script reported 3.46 GB and 318 ms. The re-check found it timed a random-init Qwen2.5-1.5B with no vision tower and a hand-written random expert; the parts did not sum (135 + 230 ≠ 318). REKI's Orin latency is **unmeasured**.
 
-**G14 (2026-10-18).** REKI's oscillation criterion on my 69 published rollouts: reversal at ≥ 3 consecutive chunks, cosine < −0.5, > 3° per chunk. **Failed episodes 6/25 = 24.0 %** (CI 11.5–43.4 %); succeeded 8/44; all 14/69. Trajectory check: the flagged failures are real re-grasp loops and pan dithering; two unflagged loops were missed. All my policies are memoryless.
+**G14 (2026-10-18).** REKI's oscillation criterion on my 69 published rollouts: reversal at ≥ 3 consecutive chunks, cosine < −0.5, > 3° per chunk. **Failed episodes 6/25 = 24.0 %** (CI 11.5–43.4 %); succeeded 8/44; **all episodes 14/69 = 20.3 %**, which is the number comparable with REKI's (theirs is over all episodes). Trajectory check: the flagged failures are real re-grasp loops and pan dithering; two unflagged loops were missed. All my policies are memoryless.
 
 ## Their number, my number
 
 | | Paper | This arm |
 |---|---|---|
-| Oscillation, no memory | 18.6 % (trained without), 14.8 % (evaluated without) | 24.0 % of failed episodes |
+| Oscillation, no memory | 18.6 % (trained without), 14.8 % (evaluated without) | 20.3 % of all episodes (24.0 % of failed) |
 | With memory | 4.1 % | not tested |
 | Criterion | reversal ≥ 3 consecutive chunks, 20 seeds/task | same criterion, 69 episodes |
 | Latency on Orin | — | void; unmeasured |
@@ -37,4 +37,4 @@ G14 is the cleanest external replication of a mechanism in my register: a memory
 
 **Verdict:** the oscillation mechanism reproduces; the fix is untested; the latency gate was void and is to be redone.
 
-**What would change it:** a real REKI chunk timed on the Orin with the released checkpoint, then 32 registers in SmolVLA's expert against the 24 % line.
+**What would change it:** a real REKI chunk timed on the Orin with the released checkpoint, then 32 registers in SmolVLA's expert against the 20.3 % line.
