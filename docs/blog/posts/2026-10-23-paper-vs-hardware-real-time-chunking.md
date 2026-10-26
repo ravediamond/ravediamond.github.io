@@ -6,9 +6,11 @@ slug: paper-vs-hardware-real-time-chunking
 
 # Paper vs hardware 15: Real-Time Chunking
 
-Real-Time Chunking (Black, Galliker, Levine, Physical Intelligence; arXiv 2506.07339) treats the next action chunk as an inpainting problem. My gradient-free prefix overwrite is the paper's "hard mask" line, and the paper says where it should lose.
+Real-Time Chunking (Black, Galliker, Levine, Physical Intelligence; arXiv 2506.07339) treats the next action chunk as an inpainting problem. My gradient-free prefix overwrite uses the paper's soft mask without its gradient, and the paper says where gradient-free inpainting should lose.
 
 <!-- more -->
+
+*Corrected 2026-10-26: an earlier version called the overwrite RTC's hard mask. It uses RTC's soft prefix weights, without the gradient (see the [chunk-boundary post](2026-10-25-vla-chunk-boundary-jumps.md)).*
 
 ## What the paper claims, and how it measures it
 
@@ -26,14 +28,14 @@ Evaluation: twelve dynamic Kinetix tasks chosen because quasi-static benchmarks 
 
 | | Paper | This arm |
 |---|---|---|
-| Hard vs soft mask | soft > hard at small d (Fig. 5) | hard only; soft not run |
+| Hard vs soft mask | soft > hard at small d (Fig. 5) | soft only (RTC's prefix weights over the whole leftover); hard not run |
 | Cost | +21 ms (VJP per Euler step) | +0.4 ms (overwrite); exact +930 ms in PyTorch |
 | Metric | throughput, task progress/min | median boundary jump (instrument) |
 | n | 2 048 rollouts/point; real 10/task/delay | 254 boundaries, 20 episodes |
 
 ## What the gap means
 
-The overwrite is the paper's hard mask with the guidance weight sent to infinity on the frozen steps and zero elsewhere. The paper's Fig. 5 says that works and that soft masking beats it when d is small relative to H — which is my regime (d ≈ 7 of 50). That is a precise published prediction I have not tested, and testing it needs no engine work: implement eq. 5 in PyTorch, run the same 254 boundaries with shared noise, pair against the overwrite. Only if soft wins by more than the pairing noise are ggml backward kernels worth writing. And the result metric should be theirs: a smoother junction is for throughput; the jump is the instrument check, not the claim.
+The overwrite already uses the paper's soft mask (weight 1 on the first d steps, decaying to 0 at the end of the leftover). What it drops is the gradient: it corrects the predicted clean chunk directly, which is guidance with an identity Jacobian at weight 1/t, instead of RTC's vector-Jacobian product. So the paper's hard-vs-soft result (Fig. 5) does not decide between the two; the paper's own gradient-free inpainting variant (App. A.4, simulation only) was beaten by guided RTC on solve rate. Only if guided RTC beats the overwrite by more than the pairing noise on the same 254 boundaries are ggml backward kernels worth writing. And the result metric should be theirs: a smoother junction is for throughput; the jump is the instrument check, not the claim.
 
 **Verdict:** the gradient-free point reproduces in spirit; the paper predicts a better point I have not measured.
 
