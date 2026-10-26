@@ -13,5 +13,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install mkdocs-material
-      - run: mkdocs gh-deploy --force
+      # The blog moved to shissorobotics.com (MOVED.md): publish the redirect tree, not the MkDocs build.
+      - run: pip install ghp-import
+      - run: ghp-import --no-jekyll --push --force --branch gh-pages redirects
