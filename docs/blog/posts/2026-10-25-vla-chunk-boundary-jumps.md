@@ -6,7 +6,7 @@ slug: vla-chunk-boundary-jumps
 
 # Why your VLA's actions jump at every chunk boundary on real hardware, and a 0.4 ms fix
 
-Run a chunked VLA asynchronously on a real arm and the command jumps every time a new chunk takes over. On my SO-101 with SmolVLA, the step at the switch was a median 3.4 times a normal step, and on a test boundary served by the real engine the jump was 58.7°. A gradient-free prefix overwrite inside the denoising loop brings the jump down to the size of a normal step, adds 0.4 ms per chunk on a Jetson Orin NX, and leaves the default path bit-identical. It has not been tested for task success on the arm yet. This post covers what I measured, and what I did not.
+Run a chunked VLA asynchronously on a real arm and the command jumps every time a new chunk takes over. On my SO-101 with SmolVLA, the step at the switch was a median 3.4 times a normal step, and on a test boundary served by the real engine the jump was 58.7°. Against naive async, a gradient-free prefix overwrite inside the denoising loop brings the jump down to the size of a normal step, adds 0.4 ms per chunk on a Jetson Orin NX, and leaves the default path bit-identical. LeRobot's own gradient-free RTC mode, tuned, gets close on the jump; the overwrite's edge over it is no parameter to tune and an exact prefix. It has not been tested for task success on the arm yet. This post covers what I measured, and what I did not.
 
 <!-- more -->
 
@@ -54,7 +54,7 @@ There are no gradients. `prev_actions` (the not-yet-executed rest of the previou
 
 ## Results
 
-Medians over 254 boundaries per cell, 20 episodes, degrees, five arm joints. Prefix error is how far the first d rows of the new chunk are from the leftover. Drift is the distance to the recorded actions, a check that the correction does not drag the chunk away from the demonstrations.
+Medians over 254 boundaries per cell, 20 episodes, degrees, five arm joints. The vla.cpp rows go through the engine; the PyTorch rows are the same study in LeRobot, including its RTC modes: `identity` (LeRobot's gradient-free guided mode) and `exact` (vector-Jacobian product, RTC as published), at guidance weight β. Prefix error is how far the first d rows of the new chunk are from the leftover. Drift is the distance to the recorded actions, a check that the correction does not drag the chunk away from the demonstrations.
 
 | | d | jump ratio | accel ratio | prefix error | drift |
 |---|---|---|---|---|---|
@@ -62,13 +62,20 @@ Medians over 254 boundaries per cell, 20 episodes, degrees, five arm joints. Pre
 | **vla.cpp overwrite** | 8 / 12 / 20 | **0.98 / 0.90 / 1.05** | 1.21 / 1.19 / 1.29 | **0 / 0 / 0** | 1.50 / 1.50 / 1.45 |
 | PyTorch naive | 8 / 12 / 20 | 3.42 / 3.69 / 3.77 | 3.81 / 4.13 / 4.27 | 1.65 / 1.69 / 1.91 | 1.48 / 1.53 / 1.53 |
 | PyTorch overwrite | 8 / 12 / 20 | 0.93 / 0.96 / 1.06 | 1.23 / 1.26 / 1.34 | 0 / 0 / 0 | 1.49 / 1.55 / 1.49 |
+| PyTorch identity, β = 5 | 8 / 12 / 20 | 1.26 / 1.19 / 1.34 | 1.50 / 1.54 / 1.67 | 0.48 / 0.45 / 0.42 | 1.47 / 1.50 / 1.57 |
+| PyTorch identity, β = 10 | 8 / 12 / 20 | 0.95 / 1.02 / 1.12 | 1.26 / 1.28 / 1.33 | 0.08 / 0.08 / 0.08 | 1.51 / 1.52 / 1.62 |
+| PyTorch exact RTC, β = 5 | 8 / 12 / 20 | 2.43 / 2.55 / 2.99 | 2.83 / 3.04 / 3.77 | 0.99 / 0.98 / 0.97 | 1.57 / 1.61 / 1.60 |
 
-- **The jump drops by 71.0 / 73.3 / 71.5 %** through vla.cpp (72.8 / 74.0 / 71.7 % in PyTorch). The switch now looks like an ordinary step.
+- **Against naive async, the jump drops by 71.0 / 73.3 / 71.5 %** through vla.cpp (72.8 / 74.0 / 71.7 % in PyTorch). The switch now looks like an ordinary step.
 - **Drift is unchanged.**
 - **The prefix matches the leftover exactly**: max prefix error 0.0 over 762 boundaries.
 - **Cost: +0.4 ms per chunk**, measured as 371.0 → 371.4 ms wall per call from Python. That includes copying two 512² images; the engine's own inference is the 238 ms above.
 
 Against the real server, the first 8 rows of the corrected chunk match the leftover to 1e-6°. The naive chunk was off by up to 47° on the same rows.
+
+## Against LeRobot's RTC modes
+
+The 72 % is against naive async. LeRobot already ships RTC, and its gradient-free `identity` mode, tuned to β = 10, reaches jump ratios of 0.95 / 1.02 / 1.12 against the overwrite's 0.93 / 0.96 / 1.06 in PyTorch. On the jump alone the gain over a tuned identity mode is small. What the overwrite adds is no β to tune (at β = 5 identity is clearly worse: 1.26 / 1.19 / 1.34), an exact prefix (0 against 0.08), and no gradient, which is what made it portable into vla.cpp. Exact RTC cost 1.9x per chunk in PyTorch (1962 against 1028 ms) and did worse than both gradient-free modes here. That is the opposite of the RTC paper's ordering, and I have not ruled out a problem in my VJP path, so I do not read it as a verdict on RTC.
 
 ## How it differs from RTC
 
@@ -80,7 +87,7 @@ Mine is a different variant. It corrects the predicted *clean* chunk with RTC's 
 
 ## What is not proven
 
-This is smoothness, measured offline on recorded episodes through the real engine. **Task success on the arm with the overwrite has not been tested.** That test is registered as G13a and has not run.
+This is smoothness, measured offline on recorded episodes through the real engine. **Task success on the arm has not been measured for any of these modes**: not for the overwrite, not for LeRobot's identity or exact RTC. That test is registered as G13a and has not run. The comparison with identity and exact RTC is offline and in PyTorch only; neither runs in vla.cpp.
 
 Forcing the new chunk to agree with the old one could hurt success: if the old chunk was heading the wrong way, the new one now follows it for d steps. If G13a shows that, the fallback is training-time action conditioning (arXiv 2512.05964), which fine-tunes the policy to take a clean prefix instead of correcting it at inference.
 
@@ -98,3 +105,5 @@ VLA_LIBRARY=~/workspace/git/vla.cpp/build-orin/libvla.so PYTHONPATH=~/workspace/
 The check script and the per-boundary rows live in my research repo, which is not public yet.
 
 Every paper I test this way, with its bar and verdict, is on the [paper vs hardware page](https://ravediamond.github.io/papers/).
+
+*Updated 2026-10-26: added LeRobot's identity and exact RTC modes as baselines.*
